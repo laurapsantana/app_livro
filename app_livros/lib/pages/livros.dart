@@ -70,7 +70,6 @@ class _LivrosPageState extends State<LivrosPage> {
           ),
         ],
       ),
-
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -97,7 +96,7 @@ class _LivrosPageState extends State<LivrosPage> {
             ),
             Expanded(
               child: books.isEmpty && !_isLoading
-                  ? Center(child: Text('Nenhum livro encontrado.'))
+                  ? Center(child: Text('Olá! Bem Vindo(a) ao nosso aplicativo ;D.'))
                   : ListView.builder(
                 itemCount: books.length,
                 itemBuilder: (context, index) {
