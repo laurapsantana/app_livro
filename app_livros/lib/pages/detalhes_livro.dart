@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:app_livros/db_livros.dart';
 
 class DetalhesLivroPage extends StatelessWidget {
   final Map<String, dynamic> book;
+  final DBLivros dbLivros = DBLivros();
 
   DetalhesLivroPage({required this.book});
 
@@ -18,10 +20,24 @@ class DetalhesLivroPage extends StatelessWidget {
         actions: [
           IconButton(
             icon: Icon(Icons.favorite),
-            onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('$title adicionado aos favoritos!')),
-              );
+            onPressed: () async {
+              bool exists = await dbLivros.bookExists(book['id']);
+              if (!exists) {
+                await dbLivros.insertBook({
+                  'id': book['id'],
+                  'title': title,
+                  'authors': authors,
+                  'description': description,
+                  'thumbnail': thumbnail,
+                });
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('$title adicionado aos favoritos!')),
+                );
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('$title já está nos favoritos!')),
+                );
+              }
             },
           ),
         ],
