@@ -5,47 +5,65 @@ class DBLivros {
   static final DBLivros _instance = DBLivros._internal();
   static Database? _database;
 
-  // Singleton pattern to ensure a single instance
+  // Construtor de fábrica para retornar a instância
   factory DBLivros() {
     return _instance;
   }
 
   DBLivros._internal();
 
-  // Getter for the database instance
+  // Getter para a instância do banco de dados
   Future<Database> get database async {
-    if (_database != null) return _database!;
-    _database = await _initDatabase();
+    _database ??= await _initDatabase();
     return _database!;
   }
 
-  // Initializes the database
+  // Inicializa o banco de dados
   Future<Database> _initDatabase() async {
     String path = join(await getDatabasesPath(), 'books.db');
-    return openDatabase(
+    return await openDatabase(
       path,
-      onCreate: (db, version) {
-        return db.execute(
-          "CREATE TABLE books(id TEXT PRIMARY KEY, title TEXT, authors TEXT, description TEXT, thumbnail TEXT)",
+      version: 1,
+      onCreate: (db, version) async {
+        await db.execute(
+          "CREATE TABLE books ("
+              "id TEXT PRIMARY KEY, "
+              "title TEXT, "
+              "authors TEXT, "
+              "description TEXT, "
+              "thumbnail TEXT"
+              ")",
         );
       },
-      version: 1,
+      onUpgrade: (db, oldVersion, newVersion) async {
+        // Lida com a migração do banco de dados, se necessário
+        if (oldVersion < newVersion) {
+        }
+      },
     );
   }
 
-  // Inserts a book into the database
+  // Insere o livro no banco de dados
   Future<void> insertBook(Map<String, dynamic> book) async {
     final db = await database;
-    await db.insert('books', book, conflictAlgorithm: ConflictAlgorithm.replace);
+    try {
+      await db.insert(
+        'books',
+        book,
+        conflictAlgorithm: ConflictAlgorithm.replace,
+      );
+    } catch (e) {
+      print('Error inserting book: $e');
+    }
   }
 
-  // Retrieves all books from the database
+  // Recupera todos os livros do banco de dados
   Future<List<Map<String, dynamic>>> getBooks() async {
     final db = await database;
     return await db.query('books');
   }
 
-  // Deletes a book from the database by its ID
+  // Deleta um livro do banco de dados pelo seu ID
   Future<void> deleteBook(String id) async {
     final db = await database;
     await db.delete(
@@ -53,5 +71,22 @@ class DBLivros {
       where: 'id = ?',
       whereArgs: [id],
     );
+  }
+
+  // Verifica se o livro existe no banco de dados
+  Future<bool> bookExists(String id) async {
+    final db = await database;
+    final result = await db.query(
+      'books',
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+    return result.isNotEmpty;
+  }
+
+  // Fecha o banco de dados
+  Future<void> closeDatabase() async {
+    final db = await database;
+    await db.close();
   }
 }
