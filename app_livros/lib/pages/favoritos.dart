@@ -14,56 +14,61 @@ class _FavoritosPageState extends State<FavoritosPage> {
   @override
   void initState() {
     super.initState();
-    _loadFavorites();
+    _loadFavoriteBooks();
   }
 
-  Future<void> _loadFavorites() async {
+  Future<void> _loadFavoriteBooks() async {
     List<Map<String, dynamic>> books = await dbLivros.getBooks();
     setState(() {
       favoriteBooks = books;
     });
   }
 
-  Future<void> _deleteBook(String id) async {
-    await dbLivros.deleteBook(id);
-    await _loadFavorites(); // Recarrega a lista de favoritos
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Livro removido dos favoritos!')),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Favoritos'),
+        title: Text('Livros Favoritos'),
       ),
       body: favoriteBooks.isEmpty
-          ? Center(child: Text('Nenhum livro salvo'))
+          ? Center(child: Text('Nenhum livro favorito.'))
           : ListView.builder(
         itemCount: favoriteBooks.length,
         itemBuilder: (context, index) {
           var book = favoriteBooks[index];
           return ListTile(
-            leading: (book['thumbnail'] != null && book['thumbnail'] != '')
+            leading: book['thumbnail'] != null
                 ? Image.network(book['thumbnail'])
                 : Icon(Icons.book),
-            title: Text(book['title'] ?? 'Título desconhecido'),
-            subtitle: Text(book['authors'] != null && book['authors'] is String
-                ? book['authors']
-                : 'Autor desconhecido'),
+            title: Text(book['title']),
+            subtitle: Text(book['authors']),
             onTap: () {
+              // Navega para a página de detalhes passando os dados do livro
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => DetalhesLivroPage(book: book),
+                  builder: (context) => DetalhesLivroPage(
+                    book: {
+                      'id': book['id'],
+                      'volumeInfo': {
+                        'title': book['title'],
+                        'authors': book['authors'].split(', '),
+                        'description': book['description'],
+                        'imageLinks': {'thumbnail': book['thumbnail']}
+                      }
+                    },
+                  ),
                 ),
               );
             },
             trailing: IconButton(
               icon: Icon(Icons.delete),
-              onPressed: () {
-                _deleteBook(book['id']);
+              onPressed: () async {
+                await dbLivros.deleteBook(book['id']);
+                _loadFavoriteBooks();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('${book['title']} removido dos favoritos!')),
+                );
               },
             ),
           );
