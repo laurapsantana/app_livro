@@ -1,10 +1,11 @@
 # app_livros
 
-A new Flutter project.
+Aplicativo de livros desenvolvido em flutter com os conhecimentos adquiridos na Disciplina Desenvolvimento para Dispositivos Móveis ll 
 
-## Getting Started
-
-This project is a starting point for a Flutter application.
+Integrantes do grupo: 
+Laura Santana;
+Radmila Lopes;
+Tifani Mendonça
 
 A few resources to get you started if this is your first Flutter project:
 
