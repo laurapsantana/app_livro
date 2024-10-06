@@ -1,6 +1,6 @@
 # app_livros
 
-Aplicativo de livros desenvolvido em flutter com os conhecimentos adquiridos na Disciplina Desenvolvimento para Dispositivos Móveis ll 
+Aplicativo de livros desenvolvido em flutter utilizando API do Google Books com os conhecimentos adquiridos na Disciplina Desenvolvimento para Dispositivos Móveis ll 
 
 Integrantes do grupo: 
 Laura Santana;
